@@ -94,7 +94,7 @@ const AppRouter = () => {
                     path="/admin"
                     element={
                         // <ProtectedRoute role="Admin">
-                        <AdminDashboard tickets={tickets} onReply={handleReply} />
+                        <AdminDashboard tickets={tickets} />
                         // </ProtectedRoute>
                     }
                 />
