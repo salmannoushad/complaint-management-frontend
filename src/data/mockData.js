@@ -2,25 +2,34 @@ export const mockTickets = [
     {
         id: 1,
         subject: "Issue with login",
-        description: "I am unable to log into my account. Please help.",
+        description: "I can't log into my account.",
         status: "Open",
         customer: "John Doe",
-        executive: "Admin",
+        replies: [
+            {
+                role: "customer",
+                message: "I can't log into my account, please help.",
+                time: "2025-01-01 10:00:00",
+            },
+        ],
     },
     {
         id: 2,
-        subject: "Payment not going through",
-        description: "The payment page doesn't load when I try to pay.",
-        status: "Open",
-        customer: "Jane Smith",
-        executive: "Admin",
-    },
-    {
-        id: 3,
-        subject: "Account verification pending",
-        description: "My account hasn't been verified yet.",
+        subject: "Payment failure",
+        description: "I can't process payments.",
         status: "Resolved",
-        customer: "Alice Williams",
-        executive: "Admin",
+        customer: "Jane Smith",
+        replies: [
+            {
+                role: "customer",
+                message: "My payment keeps failing, help!",
+                time: "2025-01-02 12:00:00",
+            },
+            {
+                role: "admin",
+                message: "We've resolved the issue, please try again.",
+                time: "2025-01-02 15:00:00",
+            },
+        ],
     },
-];
+]

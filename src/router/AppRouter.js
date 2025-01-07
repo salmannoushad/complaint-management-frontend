@@ -102,7 +102,7 @@ const AppRouter = () => {
                     path="/customer"
                     element={
                         // <ProtectedRoute role="Customer">
-                        <CustomerDashboard />
+                        <CustomerDashboard tickets={tickets}/>
                         // </ProtectedRoute>
                     }
                 />
