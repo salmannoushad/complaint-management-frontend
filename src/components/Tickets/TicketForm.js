@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { TextField, Button, Box, Grid, Typography } from "@mui/material";
+import { TextField, Button, Box, Grid, Typography, Alert } from "@mui/material";
+import { createTicket } from "../../services/ticketService";
 
 const TicketForm = ({ onSubmit, ticket, onCancel }) => {
+
     const [subject, setSubject] = useState(ticket ? ticket.subject : "");
     const [description, setDescription] = useState(ticket ? ticket.description : "");
+    const [error, setError] = useState(null); 
+    const [success, setSuccess] = useState(false);
+
 
     useEffect(() => {
         if (ticket) {
@@ -12,11 +17,40 @@ const TicketForm = ({ onSubmit, ticket, onCancel }) => {
         }
     }, [ticket]);
 
-    const handleSubmit = (e) => {
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     onSubmit({ id: ticket?.id, subject, description, status: ticket?.status || "Open" });
+    //     setSubject("");
+    //     setDescription("");
+    // };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        onSubmit({ id: ticket?.id, subject, description, status: ticket?.status || "Open" });
-        setSubject("");
-        setDescription("");
+        try {
+            const ticketData = {
+                subject,
+                description,
+                status: ticket?.status || "Open",
+            };
+
+            if (ticket) {
+                // Handle update logic (if applicable)
+                onSubmit({ ...ticket, ...ticketData });
+            } else {
+                // Call the API to create a new ticket
+                const newTicket = await createTicket(ticketData);
+                console.log("Ticket created successfully:", newTicket);
+                setSuccess(true);
+                setTimeout(() => setSuccess(false), 3000); // Clear success message
+                setSubject("");
+                setDescription("");
+                if (onSubmit) onSubmit(newTicket); // Notify parent about the new ticket
+            }
+        } catch (err) {
+            console.error("Error creating ticket:", err);
+            setError("Failed to create the ticket. Please try again.");
+            setTimeout(() => setError(null), 5000); // Clear error message
+        }
     };
 
     return (
@@ -24,6 +58,10 @@ const TicketForm = ({ onSubmit, ticket, onCancel }) => {
             <Typography variant="h6" gutterBottom>
                 {ticket ? "Update Your Ticket" : "Create a New Ticket"}
             </Typography>
+
+            {error && <Alert severity="error">{error}</Alert>}
+            {success && <Alert severity="success">Ticket created successfully!</Alert>}
+
             <Grid container spacing={2}>
                 <Grid item xs={12}>
                     <TextField

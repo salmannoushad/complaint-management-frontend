@@ -3,6 +3,8 @@ import { Container, Typography, Box, Button, Grid, Paper, Card, CardContent, Div
     ListItem, } from "@mui/material";
 import TicketForm from "../Tickets/TicketForm";
 import { mockTickets } from "../../data/mockData"; // Importing mock data
+import axios from "axios";
+import { fetchTickets, createTicket, updateTicket, deleteTicket } from "../../services/ticketService";
 
 const CustomerDashboard = () => {
     const [tickets, setTickets] = useState([]);
@@ -13,8 +15,18 @@ const CustomerDashboard = () => {
     const [selectedTicket, setSelectedTicket] = useState(null);
     const [replyMessage, setReplyMessage] = useState("");
 
+    // Fetch tickets from backend
     useEffect(() => {
-        setTickets(mockTickets); // Load mock data
+        const loadTickets = async () => {
+            try {
+                const data = await fetchTickets();
+                setTickets(data);
+            } catch (error) {
+                console.error("Failed to load tickets", error);
+            }
+        };
+
+        loadTickets();
     }, []);
 
     const handleCreateTicket = (newTicket) => {
@@ -34,30 +46,13 @@ const CustomerDashboard = () => {
         setEditingTicket(null);
     };
 
-    const handleDeleteTicket = (ticketId) => {
-        setTickets(tickets.filter((ticket) => ticket.id !== ticketId));
-    };
-
-    const handleReplySubmit = () => {
-        // Add the reply to the selected ticket
-        const updatedTickets = tickets.map((ticket) =>
-            ticket.id === selectedTicket.id
-                ? {
-                      ...ticket,
-                      replies: [
-                          ...ticket.replies,
-                          {
-                              role: "customer",
-                              message: replyMessage,
-                              time: new Date().toISOString(),
-                          },
-                      ],
-                  }
-                : ticket
-        );
-        setTickets(updatedTickets);
-        setReplyMessage(""); // Clear the reply field
-        setOpenReplyDialog(false); // Close the dialog
+    const handleDeleteTicket = async (ticketId) => {
+        try {
+            await deleteTicket(ticketId);
+            setTickets(tickets.filter((ticket) => ticket.id !== ticketId));
+        } catch (error) {
+            console.error("Failed to delete ticket", error);
+        }
     };
 
     const handleShowMessages = (ticket) => {
@@ -166,12 +161,6 @@ const CustomerDashboard = () => {
                                                 onClick={() => setEditingTicket(ticket)}
                                                 variant="contained"
                                                 color="primary"
-                                                // sx={{
-                                                //     textTransform: "none",
-                                                //     borderRadius: 5,
-                                                //     padding: "6px 16px",
-                                                //     fontWeight: "bold",
-                                                // }}
                                             >
                                                 Edit
                                             </Button>
@@ -179,26 +168,16 @@ const CustomerDashboard = () => {
                                                 onClick={() => handleDeleteTicket(ticket.id)}
                                                 variant="outlined"
                                                 color="error"
-                                                // sx={{
-                                                //     textTransform: "none",
-                                                //     borderRadius: 5,
-                                                //     padding: "6px 16px",
-                                                // }}
                                             >
                                                 Delete
                                             </Button>
                                             <Button
                                                 onClick={() => handleShowMessages(ticket)}
                                                 variant="outlined"
-                                                // sx={{
-                                                //     textTransform: "none",
-                                                //     borderRadius: 5,
-                                                //     padding: "6px 16px",
-                                                // }}
                                             >
                                                 Show Message
                                             </Button>
-                                            <Button
+                                            {/* <Button
                                                 onClick={() => {
                                                     setSelectedTicket(ticket);
                                                     setOpenReplyDialog(true);
@@ -212,7 +191,7 @@ const CustomerDashboard = () => {
                                                 // }}
                                             >
                                                 Reply
-                                            </Button>
+                                            </Button> */}
                                         </Box>
                                     </CardContent>
                                 </Card>
@@ -246,7 +225,7 @@ const CustomerDashboard = () => {
                 </DialogActions>
             </Dialog> */}
 {/* Customer Reply Popup Dialog */}
-<Dialog
+{/* <Dialog
     open={openReplyDialog}
     onClose={() => setOpenReplyDialog(false)}
     maxWidth="sm"
@@ -336,7 +315,7 @@ const CustomerDashboard = () => {
             Submit Reply
         </Button>
     </DialogActions>
-</Dialog>
+</Dialog> */}
 
             {/* Show Message Dialog */}
 <Dialog
