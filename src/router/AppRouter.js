@@ -121,6 +121,7 @@ import AdminDashboard from "../components/Dashboard/AdminDashboard";
 import CustomerDashboard from "../components/Dashboard/CustomerDashboard";
 import ProtectedRoute from "../components/Auth/ProtectedRoute";
 import { getAllTickets } from "../services/ticketService";
+import Register from "../pages/Register";
 
 const AppRouter = () => {
     const [tickets, setTickets] = useState([]);
@@ -148,6 +149,7 @@ const AppRouter = () => {
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route
           path="/admin"
           element={
