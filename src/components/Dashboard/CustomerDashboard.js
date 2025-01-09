@@ -2,18 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Container, Typography, Box, Button, Grid, Paper, Card, CardContent, Divider, Dialog, DialogActions, DialogContent, DialogTitle, TextField,    List,
     ListItem, } from "@mui/material";
 import TicketForm from "../Tickets/TicketForm";
-import { mockTickets } from "../../data/mockData"; // Importing mock data
-import axios from "axios";
-import { fetchTickets, createTicket, updateTicket, deleteTicket } from "../../services/ticketService";
+import { fetchTickets, createTicket, updateTicket, deleteTicket, fetchTicketReplies } from "../../services/ticketService";
 
 const CustomerDashboard = () => {
     const [tickets, setTickets] = useState([]);
     const [editingTicket, setEditingTicket] = useState(null);
-    const [openReplyDialog, setOpenReplyDialog] = useState(false);
     const [openShowMessageDialog, setOpenShowMessageDialog] = useState(false);
-    // const [openMessagesDialog, setOpenMessagesDialog] = useState(false);
     const [selectedTicket, setSelectedTicket] = useState(null);
-    const [replyMessage, setReplyMessage] = useState("");
+    const [noRepliesSnackbar, setNoRepliesSnackbar] = useState(false);
 
     // Fetch tickets from backend
     useEffect(() => {
@@ -55,9 +51,18 @@ const CustomerDashboard = () => {
         }
     };
 
-    const handleShowMessages = (ticket) => {
-        setSelectedTicket(ticket);
-        setOpenShowMessageDialog(true);
+    const handleShowMessages = async (ticket) => {
+        try {
+            const replies = await fetchTicketReplies(ticket.id);
+            if (replies.length === 0) {
+                setNoRepliesSnackbar(true);
+            } else {
+                setSelectedTicket({ ...ticket, replies });
+                setOpenShowMessageDialog(true);
+            }
+        } catch (error) {
+            console.error("Error loading messages:", error);
+        }
     };
 
     return (
@@ -177,21 +182,6 @@ const CustomerDashboard = () => {
                                             >
                                                 Show Message
                                             </Button>
-                                            {/* <Button
-                                                onClick={() => {
-                                                    setSelectedTicket(ticket);
-                                                    setOpenReplyDialog(true);
-                                                }}
-                                                variant="contained"
-                                                color="secondary"
-                                                // sx={{
-                                                //     textTransform: "none",
-                                                //     borderRadius: 5,
-                                                //     padding: "6px 16px",
-                                                // }}
-                                            >
-                                                Reply
-                                            </Button> */}
                                         </Box>
                                     </CardContent>
                                 </Card>
@@ -201,124 +191,9 @@ const CustomerDashboard = () => {
                 </Box>
             </Box>
 
-            {/* Reply Dialog */}
-            {/* <Dialog open={openReplyDialog} onClose={() => setOpenReplyDialog(false)}>
-                <DialogTitle>Reply to Ticket</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        label="Reply Message"
-                        fullWidth
-                        multiline
-                        rows={4}
-                        value={replyMessage}
-                        onChange={(e) => setReplyMessage(e.target.value)}
-                        variant="outlined"
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenReplyDialog(false)} color="primary">
-                        Cancel
-                    </Button>
-                    <Button onClick={handleReplySubmit} color="primary">
-                        Submit Reply
-                    </Button>
-                </DialogActions>
-            </Dialog> */}
-{/* Customer Reply Popup Dialog */}
-{/* <Dialog
-    open={openReplyDialog}
-    onClose={() => setOpenReplyDialog(false)}
-    maxWidth="sm"
-    fullWidth
-    PaperProps={{
-        sx: {
-            borderRadius: 3,
-            boxShadow: 10,
-        },
-    }}
->
-    <DialogTitle
-        sx={{
-            bgcolor: "#1976d2",
-            color: "white",
-            fontWeight: "bold",
-            textAlign: "center",
-            fontSize: "1.2rem",
-        }}
-    >
-        Reply to Ticket
-    </DialogTitle>
-    <DialogContent
-        sx={{
-            px: 4,
-            py: 2,
-            bgcolor: "#f9fafb",
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-        }}
-    >
-        <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ textAlign: "center" }}
-        >
-            Provide your reply below. Make sure your response is clear and concise.
-        </Typography>
-        <TextField
-            label="Reply Message"
-            multiline
-            rows={5}
-            fullWidth
-            value={replyMessage}
-            onChange={(e) => setReplyMessage(e.target.value)}
-            variant="outlined"
-            sx={{
-                "& .MuiOutlinedInput-root": {
-                    borderRadius: "10px",
-                },
-            }}
-        />
-    </DialogContent>
-    <DialogActions
-        sx={{
-            px: 4,
-            py: 2,
-            bgcolor: "#f9fafb",
-            display: "flex",
-            justifyContent: "space-between",
-        }}
-    >
-        <Button
-            onClick={() => setOpenReplyDialog(false)}
-            variant="outlined"
-            color="error"
-            sx={{
-                textTransform: "none",
-                borderRadius: "10px",
-            }}
-        >
-            Cancel
-        </Button>
-        <Button
-            onClick={handleReplySubmit}
-            variant="contained"
-            sx={{
-                bgcolor: "#1976d2",
-                textTransform: "none",
-                borderRadius: "10px",
-                "&:hover": {
-                    bgcolor: "#115293",
-                },
-            }}
-        >
-            Submit Reply
-        </Button>
-    </DialogActions>
-</Dialog> */}
-
+            
             {/* Show Message Dialog */}
-<Dialog
+{/* <Dialog
     open={openShowMessageDialog}
     onClose={() => setOpenShowMessageDialog(false)}
     maxWidth="md"
@@ -438,8 +313,118 @@ const CustomerDashboard = () => {
             Close
         </Button>
     </DialogActions>
-</Dialog>
-
+</Dialog> */}
+            {selectedTicket && (
+                <Dialog
+                    open={openShowMessageDialog}
+                    onClose={() => setOpenShowMessageDialog(false)}
+                    maxWidth="md"
+                    fullWidth
+                    PaperProps={{
+                        sx: {
+                            borderRadius: 5,
+                            boxShadow: 12,
+                        },
+                    }}
+                >
+                    <DialogTitle
+                        sx={{
+                            bgcolor: "#009688",
+                            color: "white",
+                            fontWeight: "bold",
+                            textAlign: "center",
+                            fontSize: "1.5rem",
+                            padding: "20px 40px",
+                        }}
+                    >
+                        Ticket Messages: {selectedTicket.subject}
+                    </DialogTitle>
+                    <DialogContent
+                        sx={{
+                            px: 4,
+                            py: 2,
+                            bgcolor: "#f9fafb",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 3,
+                            maxHeight: "400px",
+                            overflowY: "auto",
+                        }}
+                    >
+                        <List>
+                            {selectedTicket.replies.map((reply) => (
+                                <ListItem
+                                    key={reply.id}
+                                    sx={{
+                                        display: "flex",
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                        bgcolor: "#e0f7fa",
+                                        borderRadius: "8px",
+                                        mb: 2,
+                                        p: 2,
+                                        boxShadow: 2,
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            width: 40,
+                                            height: 40,
+                                            borderRadius: "50%",
+                                            bgcolor: "#00796b",
+                                            color: "white",
+                                            mr: 2,
+                                        }}
+                                    >
+                                        <i className="fas fa-user-tie" />
+                                    </Box>
+                                    <Box sx={{ flex: 1 }}>
+                                        <Typography variant="body2" sx={{ fontWeight: "bold", color: "#00796b" }}>
+                                            {reply?.admin_name}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            {reply.message}
+                                        </Typography>
+                                    </Box>
+                                    <Typography
+                                        variant="caption"
+                                        sx={{
+                                            color: "text.secondary",
+                                            fontStyle: "italic",
+                                        }}
+                                    >
+                                        {new Date(reply.created_at).toLocaleString()}
+                                    </Typography>
+                                </ListItem>
+                            ))}
+                        </List>
+                    </DialogContent>
+                    <DialogActions
+                        sx={{
+                            px: 4,
+                            py: 2,
+                            bgcolor: "#f9fafb",
+                            display: "flex",
+                            justifyContent: "space-between",
+                        }}
+                    >
+                        <Button
+                            onClick={() => setOpenShowMessageDialog(false)}
+                            variant="outlined"
+                            color="error"
+                            sx={{
+                                textTransform: "none",
+                                borderRadius: "10px",
+                            }}
+                        >
+                            Close
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            )}
         </Container>
     );
 };

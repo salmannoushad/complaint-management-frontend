@@ -19,6 +19,8 @@ import {
     Divider,
 } from "@mui/material";
 
+import { fetchTicketReplies, ticketReplies, changeTicketStatus } from "../../services/ticketService";
+
 const getStatusColor = (status) => {
     switch (status) {
         case "Open":
@@ -36,32 +38,75 @@ const TicketCard = ({ ticket, onStatusChange, onReply }) => {
     const [openChangeStatusDialog, setOpenChangeStatusDialog] = useState(false);
     const [openReplyDialog, setOpenReplyDialog] = useState(false);
     const [openMessagesDialog, setOpenMessagesDialog] = useState(false);
+    const [replies, setReplies] = useState([]);
+    const [loadingReplies, setLoadingReplies] = useState(false);
+    const [error, setError] = useState(null);
     const [selectedStatus, setSelectedStatus] = useState(ticket.status);
     const [replyMessage, setReplyMessage] = useState("");
+    const [loadingReply, setLoadingReply] = useState(false);
 
     // Status change logic
     const handleChangeStatus = () => setOpenChangeStatusDialog(true);
     const handleCloseChangeStatus = () => setOpenChangeStatusDialog(false);
 
-    const handleApplyStatusChange = () => {
-        onStatusChange(ticket.id, selectedStatus);
-        setOpenChangeStatusDialog(false);
+    const handleApplyStatusChange = async () => {
+        try {
+            // Call the service function to change the status
+            await changeTicketStatus(ticket.id, selectedStatus);
+            // Pass the status change to the parent (AdminDashboard)
+            onStatusChange(ticket.id, selectedStatus);
+            setOpenChangeStatusDialog(false); // Close the dialog after successful update
+        } catch (error) {
+            console.error("Error applying status change:", error);
+            // Optionally, handle errors (e.g., show an alert or message to the user)
+        }
     };
+
 
     // Reply logic
     const handleOpenReplyDialog = () => setOpenReplyDialog(true);
     const handleCloseReplyDialog = () => setOpenReplyDialog(false);
 
-    const handleSendReply = () => {
-        onReply(ticket.id, replyMessage);
-        setReplyMessage("");
-        setOpenReplyDialog(false);
+    // Send reply logic
+    const handleSendReply = async () => {
+        setLoadingReply(true);
+        try {
+            await ticketReplies(ticket.id, replyMessage); // Send the reply to the backend
+            onReply(ticket.id, replyMessage); // Optionally update the ticket's state in AdminDashboard
+            setReplyMessage(""); // Clear the message after sending
+            setOpenReplyDialog(false); // Close the reply dialog
+        } catch (err) {
+            setError("Failed to send reply");
+        } finally {
+            setLoadingReply(false);
+        }
     };
 
     // Messages logic
-    const handleOpenMessagesDialog = () => setOpenMessagesDialog(true);
-    const handleCloseMessagesDialog = () => setOpenMessagesDialog(false);
+    // Open "Show Messages" dialog and fetch replies
+    const handleOpenMessagesDialog = async () => {
+        setOpenMessagesDialog(true);
+        setLoadingReplies(true);
+        setError(null);
+        try {
+            const fetchedReplies = await fetchTicketReplies(ticket.id);
+            setReplies(fetchedReplies);
+        } catch (err) {
+            setError("Failed to load messages.");
+        } finally {
+            setLoadingReplies(false);
+        }
+    };
 
+    // Close "Show Messages" dialog
+    const handleCloseMessagesDialog = () => {
+        setOpenMessagesDialog(false);
+        setReplies([]);
+    };
+
+
+    // const replies = fetchTicketReplies(ticket.id);
+    // console.log('replies', replies);
     return (
         <>
             <Card
@@ -87,12 +132,12 @@ const TicketCard = ({ ticket, onStatusChange, onReply }) => {
                         {ticket.status}
                     </Box>
                     <Typography variant="h6" gutterBottom>
-                        {ticket.subject}
+                      {ticket.subject}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" gutterBottom>
-                        {ticket.description}
+                        description: {ticket.description}
                     </Typography>
-                    <Typography variant="body2">Customer: {ticket.customer}</Typography>
+                    <Typography variant="body2">Customer: {ticket.customer_name}</Typography>
                 </CardContent>
 
                 <CardActions sx={{ justifyContent: "space-between" }}>
@@ -362,7 +407,7 @@ const TicketCard = ({ ticket, onStatusChange, onReply }) => {
                             },
                         }}
                     >
-                        Send Reply
+                        {loadingReply ? "Sending..." : "Send Reply"}
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -404,8 +449,11 @@ const TicketCard = ({ ticket, onStatusChange, onReply }) => {
                         overflowY: "auto",
                     }}
                 >
-                    <List>
-                        {ticket.replies.map((reply, index) => (
+                    {loadingReplies && <Typography>Loading messages...</Typography>}
+                    {error && <Typography color="error">{error}</Typography>}
+                    {!loadingReplies && !error && ( 
+                        <List>
+                        {replies?.map((reply, index) => (
                             <React.Fragment key={index}>
                                 <ListItem
                                     sx={{
@@ -446,7 +494,7 @@ const TicketCard = ({ ticket, onStatusChange, onReply }) => {
                                                 color: reply.role === "admin" ? "#1a73e8" : "#4caf50",
                                             }}
                                         >
-                                            {reply.role === "admin" ? "Admin" : "Customer"}
+                                            {reply.admin_name}
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary">
                                             {reply.message}
@@ -462,10 +510,11 @@ const TicketCard = ({ ticket, onStatusChange, onReply }) => {
                                         {reply.time}
                                     </Typography>
                                 </ListItem>
-                                {index < ticket.replies.length - 1 && <Divider />}
+                                {index < replies.length - 1 && <Divider />}
                             </React.Fragment>
                         ))}
                     </List>
+                    )}
                 </DialogContent>
                 <DialogActions
                     sx={{

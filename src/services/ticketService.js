@@ -61,3 +61,40 @@ export const deleteTicket = async (ticketId) => {
         throw error;
     }
 };
+
+export const fetchTicketReplies = async (ticketId) => {
+    try {
+        const response = await apiClient.get(`/tickets/${ticketId}/replies`);
+        console.log('ticket replies', response);
+        
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching ticket replies:", error);
+        throw error; 
+    }
+};
+
+
+export const ticketReplies = async (ticketId, replyMessage) => {
+    try {
+        // Use POST to send a reply for the ticket
+        const response = await apiClient.post(`/tickets/${ticketId}/reply`, { message: replyMessage });
+        return response.data; // This could return a success message or the updated replies
+    } catch (error) {
+        console.error("Error sending ticket reply:", error);
+        throw error;
+    }
+};
+
+
+export const changeTicketStatus = async (ticketId, status) => {
+    try {
+        const response = await apiClient.patch(`/tickets/${ticketId}/status`, { status });
+        console.log('response change status', response);
+        
+        return response.data; // This could return the updated ticket data or a success message
+    } catch (error) {
+        console.error("Error changing ticket status:", error);
+        throw error;
+    }
+};
