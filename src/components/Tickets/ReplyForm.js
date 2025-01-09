@@ -7,14 +7,13 @@ const ReplyForm = ({ ticket, onReply }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (reply) {
-            // Create a new reply object with admin role and add to ticket's replies
             const newReply = {
                 role: "admin",
                 message: reply,
                 time: new Date().toISOString(),
             };
             onReply(newReply);
-            setReply(""); // Clear the form after submission
+            setReply(""); 
         }
     };
 

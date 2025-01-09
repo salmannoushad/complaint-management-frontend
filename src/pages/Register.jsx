@@ -8,7 +8,7 @@ import {
   Alert,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-// import { registerApi } from "../../services/apiService";
+import { registerApi } from "../api/auth";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -19,20 +19,20 @@ const Register = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-//   const handleSubmit = async () => {
-//     if (password !== confirmPassword) {
-//       setError("Passwords do not match.");
-//       return;
-//     }
+  const handleSubmit = async () => {
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
 
-//     try {
-//       await registerApi({ name, email, password });
-//       setSuccess("Account created successfully! Redirecting to login...");
-//       setTimeout(() => navigate("/login"), 3000);
-//     } catch (err) {
-//       setError(err.response?.data?.message || "An error occurred. Please try again.");
-//     }
-//   };
+    try {
+      await registerApi({ name, email, password });
+      setSuccess("Account created successfully! Redirecting to login...");
+      setTimeout(() => navigate("/"), 3000);
+    } catch (err) {
+      setError(err.response?.data?.message || "An error occurred. Please try again.");
+    }
+  };
 
   return (
     <Container maxWidth="sm" sx={{ mt: 8 }}>
@@ -88,7 +88,7 @@ const Register = () => {
           variant="contained"
           color="primary"
           fullWidth
-        //   onClick={handleSubmit}
+          onClick={handleSubmit}
           sx={{
             mt: 2,
             textTransform: "none",

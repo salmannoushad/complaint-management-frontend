@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Container, Typography, Box, Button, Grid, Paper, Card, CardContent, Divider, Dialog, DialogActions, DialogContent, DialogTitle, TextField,    List,
-    ListItem, } from "@mui/material";
+import {
+    Container, Typography, Box, Button, Grid, Paper, Card, CardContent, Divider, Dialog, DialogActions, DialogContent, DialogTitle, List,
+    ListItem,
+} from "@mui/material";
 import TicketForm from "../Tickets/TicketForm";
-import { fetchTickets, createTicket, updateTicket, deleteTicket, fetchTicketReplies } from "../../services/ticketService";
+import { fetchTickets, deleteTicket, fetchTicketReplies } from "../../api/tickets";
 
 const CustomerDashboard = () => {
     const [tickets, setTickets] = useState([]);
@@ -191,7 +193,7 @@ const CustomerDashboard = () => {
                 </Box>
             </Box>
 
-            
+
             {/* Show Message Dialog */}
             {selectedTicket && (
                 <Dialog

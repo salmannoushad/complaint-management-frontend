@@ -15,11 +15,10 @@ import {
     Select,
     List,
     ListItem,
-    ListItemText,
     Divider,
 } from "@mui/material";
 
-import { fetchTicketReplies, ticketReplies, changeTicketStatus } from "../../services/ticketService";
+import { fetchTicketReplies, ticketReplies, changeTicketStatus } from "../../api/tickets";
 
 const getStatusColor = (status) => {
     switch (status) {
@@ -53,12 +52,10 @@ const TicketCard = ({ ticket, onStatusChange, onReply }) => {
         try {
             // Call the service function to change the status
             await changeTicketStatus(ticket.id, selectedStatus);
-            // Pass the status change to the parent (AdminDashboard)
             onStatusChange(ticket.id, selectedStatus);
-            setOpenChangeStatusDialog(false); // Close the dialog after successful update
+            setOpenChangeStatusDialog(false);
         } catch (error) {
             console.error("Error applying status change:", error);
-            // Optionally, handle errors (e.g., show an alert or message to the user)
         }
     };
 
@@ -71,10 +68,10 @@ const TicketCard = ({ ticket, onStatusChange, onReply }) => {
     const handleSendReply = async () => {
         setLoadingReply(true);
         try {
-            await ticketReplies(ticket.id, replyMessage); // Send the reply to the backend
-            onReply(ticket.id, replyMessage); // Optionally update the ticket's state in AdminDashboard
-            setReplyMessage(""); // Clear the message after sending
-            setOpenReplyDialog(false); // Close the reply dialog
+            await ticketReplies(ticket.id, replyMessage);
+            onReply(ticket.id, replyMessage);
+            setReplyMessage("");
+            setOpenReplyDialog(false);
         } catch (err) {
             setError("Failed to send reply");
         } finally {
@@ -104,9 +101,6 @@ const TicketCard = ({ ticket, onStatusChange, onReply }) => {
         setReplies([]);
     };
 
-
-    // const replies = fetchTicketReplies(ticket.id);
-    // console.log('replies', replies);
     return (
         <>
             <Card
@@ -132,7 +126,7 @@ const TicketCard = ({ ticket, onStatusChange, onReply }) => {
                         {ticket.status}
                     </Box>
                     <Typography variant="h6" gutterBottom>
-                      {ticket.subject}
+                        {ticket.subject}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" gutterBottom>
                         description: {ticket.description}
@@ -451,69 +445,69 @@ const TicketCard = ({ ticket, onStatusChange, onReply }) => {
                 >
                     {loadingReplies && <Typography>Loading messages...</Typography>}
                     {error && <Typography color="error">{error}</Typography>}
-                    {!loadingReplies && !error && ( 
+                    {!loadingReplies && !error && (
                         <List>
-                        {replies?.map((reply, index) => (
-                            <React.Fragment key={index}>
-                                <ListItem
-                                    sx={{
-                                        display: "flex",
-                                        flexDirection: "row",
-                                        alignItems: "center",
-                                        bgcolor: reply.role === "admin" ? "#e3f2fd" : "#c8e6c9",
-                                        borderRadius: "8px",
-                                        mb: 2,
-                                        p: 2,
-                                        boxShadow: 2,
-                                    }}
-                                >
-                                    <Box
+                            {replies?.map((reply, index) => (
+                                <React.Fragment key={index}>
+                                    <ListItem
                                         sx={{
                                             display: "flex",
+                                            flexDirection: "row",
                                             alignItems: "center",
-                                            justifyContent: "center",
-                                            width: 40,
-                                            height: 40,
-                                            borderRadius: "50%",
-                                            bgcolor: reply.role === "admin" ? "#1a73e8" : "#4caf50",
-                                            color: "white",
-                                            mr: 2,
+                                            bgcolor: reply.role === "admin" ? "#e3f2fd" : "#c8e6c9",
+                                            borderRadius: "8px",
+                                            mb: 2,
+                                            p: 2,
+                                            boxShadow: 2,
                                         }}
                                     >
-                                        {reply.role === "admin" ? (
-                                            <i className="fas fa-user-shield" />
-                                        ) : (
-                                            <i className="fas fa-user" />
-                                        )}
-                                    </Box>
-                                    <Box sx={{ flex: 1 }}>
-                                        <Typography
-                                            variant="body2"
+                                        <Box
                                             sx={{
-                                                fontWeight: "bold",
-                                                color: reply.role === "admin" ? "#1a73e8" : "#4caf50",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                width: 40,
+                                                height: 40,
+                                                borderRadius: "50%",
+                                                bgcolor: reply.role === "admin" ? "#1a73e8" : "#4caf50",
+                                                color: "white",
+                                                mr: 2,
                                             }}
                                         >
-                                            {reply.admin_name}
+                                            {reply.role === "admin" ? (
+                                                <i className="fas fa-user-shield" />
+                                            ) : (
+                                                <i className="fas fa-user" />
+                                            )}
+                                        </Box>
+                                        <Box sx={{ flex: 1 }}>
+                                            <Typography
+                                                variant="body2"
+                                                sx={{
+                                                    fontWeight: "bold",
+                                                    color: reply.role === "admin" ? "#1a73e8" : "#4caf50",
+                                                }}
+                                            >
+                                                {reply.admin_name}
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {reply.message}
+                                            </Typography>
+                                        </Box>
+                                        <Typography
+                                            variant="caption"
+                                            sx={{
+                                                color: "text.secondary",
+                                                fontStyle: "italic",
+                                            }}
+                                        >
+                                            {reply.time}
                                         </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {reply.message}
-                                        </Typography>
-                                    </Box>
-                                    <Typography
-                                        variant="caption"
-                                        sx={{
-                                            color: "text.secondary",
-                                            fontStyle: "italic",
-                                        }}
-                                    >
-                                        {reply.time}
-                                    </Typography>
-                                </ListItem>
-                                {index < replies.length - 1 && <Divider />}
-                            </React.Fragment>
-                        ))}
-                    </List>
+                                    </ListItem>
+                                    {index < replies.length - 1 && <Divider />}
+                                </React.Fragment>
+                            ))}
+                        </List>
                     )}
                 </DialogContent>
                 <DialogActions

@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { loginApi } from "../../services/apiService";
+import { loginApi } from "../../api/auth";
 
 const Login = () => {
   const { setAuthData } = useAuth();
