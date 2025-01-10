@@ -14,17 +14,17 @@ const AppRouter = () => {
       <Route
         path="/admin"
         element={
-          <ProtectedRoute role="Admin">
+          // <ProtectedRoute role="Admin">
             <AdminDashboard />
-          </ProtectedRoute>
+          // </ProtectedRoute>
         }
       />
       <Route
         path="/customer"
         element={
-          <ProtectedRoute role="Customer">
+          // <ProtectedRoute role="Customer">
             <CustomerDashboard />
-          </ProtectedRoute>
+          // </ProtectedRoute>
         }
       />
     </Routes>

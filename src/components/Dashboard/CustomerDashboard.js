@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import {
     Container, Typography, Box, Button, Grid, Paper, Card, CardContent, Divider, Dialog, DialogActions, DialogContent, DialogTitle, List,
-    ListItem,
+    ListItem, IconButton, Menu, MenuItem, Avatar
 } from "@mui/material";
+import { styled } from "@mui/system";
 import TicketForm from "../Tickets/TicketForm";
 import { fetchTickets, deleteTicket, fetchTicketReplies } from "../../api/tickets";
+import { useNavigate } from "react-router-dom";
 
 const CustomerDashboard = () => {
     const [tickets, setTickets] = useState([]);
@@ -12,12 +14,18 @@ const CustomerDashboard = () => {
     const [openShowMessageDialog, setOpenShowMessageDialog] = useState(false);
     const [selectedTicket, setSelectedTicket] = useState(null);
     const [noRepliesSnackbar, setNoRepliesSnackbar] = useState(false);
+    // const [error, setError] = useState(null);
+    const [anchorEl, setAnchorEl] = useState(null); 
+    const navigate = useNavigate();
+
 
     // Fetch tickets from backend
     useEffect(() => {
         const loadTickets = async () => {
             try {
                 const data = await fetchTickets();
+                console.log(data);
+
                 setTickets(data);
             } catch (error) {
                 console.error("Failed to load tickets", error);
@@ -27,12 +35,13 @@ const CustomerDashboard = () => {
         loadTickets();
     }, []);
 
-    const handleCreateTicket = (newTicket) => {
-        newTicket.id = tickets.length + 1;
-        newTicket.status = "Open";
-        newTicket.customer = "John Doe";
-        newTicket.executive = "Admin";
-        setTickets([...tickets, newTicket]);
+    const handleCreateTicket = async (newTicket) => {
+        try {
+            const updatedTickets = await fetchTickets();
+            setTickets(updatedTickets);
+        } catch (error) {
+            console.error("Error creating ticket or fetching updated tickets:", error);
+        }
     };
 
     const handleUpdateTicket = (updatedTicket) => {
@@ -67,8 +76,34 @@ const CustomerDashboard = () => {
         }
     };
 
+    // Dropdown menu handlers
+    const handleMenuOpen = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem("authToken");
+        navigate("/");
+    };
+
     return (
         <Container maxWidth="lg">
+            <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+                <IconButton onClick={handleMenuOpen}>
+                    <Avatar sx={{ bgcolor: "#1a73e8" }}>A</Avatar>
+                </IconButton>
+                <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleMenuClose}
+                >
+                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                </Menu>
+            </Box>
             <Box my={5}>
                 <Typography
                     variant="h3"
@@ -309,5 +344,12 @@ const CustomerDashboard = () => {
         </Container>
     );
 };
+
+const Header = styled("div")(({ theme }) => ({
+    display: "flex",
+    alignItems: "center",
+    marginBottom: theme.spacing(3),
+}));
+
 
 export default CustomerDashboard;

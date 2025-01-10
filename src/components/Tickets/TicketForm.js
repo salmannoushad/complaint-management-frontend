@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { TextField, Button, Box, Grid, Typography, Alert } from "@mui/material";
-import { createTicket } from "../../api/tickets";
+import { createTicket, fetchTickets } from "../../api/tickets";
+import { Navigate } from "react-router-dom";
 
 const TicketForm = ({ onSubmit, ticket, onCancel }) => {
 
@@ -17,6 +18,13 @@ const TicketForm = ({ onSubmit, ticket, onCancel }) => {
         }
     }, [ticket]);
 
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     onSubmit({ id: ticket?.id, subject, description, status: ticket?.status || "Open" });
+    //     setSubject("");
+    //     setDescription("");
+    // };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -25,25 +33,27 @@ const TicketForm = ({ onSubmit, ticket, onCancel }) => {
                 description,
                 status: ticket?.status || "Open",
             };
-
+    
             if (ticket) {
+                // Update logic
                 onSubmit({ ...ticket, ...ticketData });
             } else {
-                // Call the API to create a new ticket
+                if (onSubmit) onSubmit(ticketData);
                 const newTicket = await createTicket(ticketData);
                 console.log("Ticket created successfully:", newTicket);
+                if (onSubmit) onSubmit(newTicket);
                 setSuccess(true);
                 setTimeout(() => setSuccess(false), 3000);
                 setSubject("");
                 setDescription("");
-                if (onSubmit) onSubmit(newTicket);
             }
         } catch (err) {
             console.error("Error creating ticket:", err);
             setError("Failed to create the ticket. Please try again.");
-            setTimeout(() => setError(null), 5000); 
+            setTimeout(() => setError(null), 5000);
         }
     };
+    
 
     return (
         <Box component="form" onSubmit={handleSubmit} mb={4}>
