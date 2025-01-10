@@ -49,6 +49,12 @@ Ensure you have the following installed:
 - node: v18.20.4
 - npm: 10.7.0
 
+# Environment Variables
+- Create a .env file in the root directory with the following variables:
+    ```bash
+    REACT_APP_BACKEND_URL=http://localhost:5000/api
+    ```
+
 ## Installation
 
 1. Clone the repository:
