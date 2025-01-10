@@ -1,70 +1,158 @@
-# Getting Started with Create React App
+# Complaint Management System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Frontend for the User Role-Based Complaint Management System, built with React.js. Features role-based dashboards, ticket management interfaces.
 
-## Available Scripts
+# Frontend Features
 
-In the project directory, you can run:
+### 1. **General:**
+  - **Role-Based UI:**
+    - Dynamically renders the appropriate dashboard and features based on the user's role (Admin or Customer).
 
-### `npm start`
+  - **Secure Authentication Flow:**
+    - Single login page for both Admins and Customers.
+    - Protected routes to restrict unauthorized access.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 2. **Customer Features:**
+- **Dashboard:**
+    - View a list of all complaints submitted by the customer.
+    - Track the status of tickets (e.g., Open, Resolved, Closed).
+- **Complaint Management::**
+    - Create a new ticket with subject and description.
+    - Edit/update existing tickets.
+    - Delete complaints.
+- **User-Friendly Forms:**
+    - Input validation and error handling for ticket creation and updates.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 3. **Admin Features:**
+- **Dashboard:**
+    - View a list of all tickets submitted by customers.
+    - Change any user to admin
+- **Complaint Management:**
+    - Reply to tickets directly.
+    - Update the status of tickets (e.g., mark as "Resolved" or "Closed").
+    
 
-### `npm test`
+### 4. **UI/UX**
+- **Intuitive Navigation::**
+    - role-specific actions.
+    - Easy-to-access logout button.
+- **Error Messages & Alerts:**
+    - User-friendly error messages for failed actions.
+    - Confirmation modals for critical actions like ticket deletion.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+# Technologies Used
+- React.js
+- Material-UI
 
-### `npm run build`
+## Prerequisites
+Ensure you have the following installed:
+- node: v18.20.4
+- npm: 10.7.0
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Installation
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/salmannoushad/complaint-management-frontend.git
+   cd complaint-management-frontend
+   ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-### `npm run eject`
+## Usage
+1. Start the development server:
+   ```bash
+   npm run start
+   ```
+2. Open the application in your browser at:
+   ```
+   http://localhost:3000
+   ```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Project Structure
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+    ├── src
+    │   ├── api
+    │   │   ├── auth.js
+    │   │   └── tickets.js
+    │   ├── assets
+    │   ├── components
+    │   │   ├── Auth
+    │   │   │   ├── Login.js
+    │   │   │   └── ProtectedRoute.js
+    │   │   ├── Dashboard
+    │   │   │   ├── AdminDashboard.js
+    │   │   │   └── CustomerDashboard.js
+    │   │   ├── Tickets
+    │   │   │   ├── ReplyForm.js
+    │   │   │   ├── TicketCard.js
+    │   │   │   ├── TicketForm.js
+    │   │   │   └── TicketList.js
+    │   ├── config
+    │   │   └── apiConfig.js
+    │   ├── context
+    │   │   └── AuthContext.js
+    │   ├── data
+    │   │   └── mockData.js
+    │   ├── pages
+    │   │   ├── AdminPage.js
+    │   │   ├── CustomerPage.js
+    │   │   └── Register.jsx
+    │   ├── router
+    │   │   └── AppRouter.js
+    │   ├── styles
+    │   │   └── global.css
+    │   ├── utils
+    │   │   ├── apiClient.js
+    │   │   ├── constants.js
+    │   │   └── index.css
+    │   ├── App.js
+    │   ├── App.css
+    │   └── index.js
+    ├── public
+    │   └── index.html
+    ├── package.json
+    |── .env
+    |── .gitignore
+    └── README.md
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Dockerfile for React Frontend with Runtime Environment Variable
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Below is the Dockerfile used to run the React.js application in a containerized environment. It uses the Node.js runtime and allows dynamic configuration of the backend URL via the `REACT_APP_BACKEND_URL` environment variable.
 
-## Learn More
+```dockerfile
+FROM node:18-alpine
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+WORKDIR /app
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+COPY package.json ./
 
-### Code Splitting
+RUN npm install
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+COPY . .
 
-### Analyzing the Bundle Size
+EXPOSE 3000
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+# Define the environment variable for the backend URL
+ENV REACT_APP_BACKEND_URL=http://localhost:5000/api
 
-### Making a Progressive Web App
+# Start the React app
+CMD ["npm", "run", "start"]
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+#Build and Run the Docker Image:
+1. Build the Docker image:
 
-### Advanced Configuration
+```
+docker build -t react-frontend-dev .
+```
+2. Run the container and pass the REACT_APP_BACKEND_URL value if needed:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```
+docker run -p 3000:3000 -e REACT_APP_BACKEND_URL=http://api.example.com react-frontend-dev
+```
 
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Feel free to contribute or open issues for improvements! Happy coding! 🎉
